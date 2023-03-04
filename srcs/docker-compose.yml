@@ -1,0 +1,119 @@
+version: '3'
+services:
+  nginx:
+    build: requirements/nginx
+    container_name: nginx
+    networks:
+      - inception-network
+    volumes:
+      - wordpress:/var/www/html
+      - ./requirements/nginx/conf/:/etc/nginx/conf.d/
+    ports:
+      - 443:443
+    depends_on:
+      - wordpress
+    restart: always
+
+  mariadb:
+    build:
+      context: requirements/mariadb
+      args:
+        - MYSQL_DATABASE=${MYSQL_DATABASE}
+        - MYSQL_USER=${MYSQL_USER}
+        - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+        - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    container_name: mariadb
+    networks:
+      - inception-network
+    volumes:
+      - database:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    restart: always
+
+  wordpress:
+    build: requirements/wordpress
+    environment: 
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_HOSTNAME: ${MYSQL_HOSTNAME}
+    container_name: wordpress
+    depends_on: 
+      - mariadb
+    networks:
+      - inception-network
+    volumes:
+      - wordpress:/var/www/html
+    restart: always
+
+  redis:
+    build: requirements/bonus/redis
+    container_name: redis
+    ports:
+      - 6379:6379
+    networks:
+      - inception-network
+    depends_on:
+      - wordpress
+    restart: always
+
+  vsftpd:
+    build:
+      context: .
+      dockerfile: requirements/bonus/ftp/Dockerfile
+      args:
+        FTP_USR: ${FTP_USER}
+        FTP_PWD: ${FTP_PWD}
+    container_name: vsftpd
+    ports:
+      - "21:21"
+    volumes:
+      - wordpress:/var/www/html
+    networks:
+     - inception-network
+    depends_on:
+      - wordpress
+    restart: always
+
+  adminer:
+    build: requirements/bonus/adminer
+    container_name: adminer
+    ports:
+      - 8080:8080
+    networks:
+      - inception-network
+    depends_on:
+      - mariadb
+    restart: always
+  
+  vitrine:
+    build: requirements/bonus/vitrine
+    container_name: vitrine
+    ports:
+      - 80:80
+    restart: always
+
+# ------------------------------------------------------------------------- #
+volumes:
+  wordpress:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${VOLUME_WP}
+      o: bind
+  database:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${VOLUME_DB}
+      o: bind
+
+
+# ------------------------------------------------------------------------- #
+networks:
+  inception-network:
+    driver: bridge

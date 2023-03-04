@@ -1,0 +1,65 @@
+footer {
+    position: fixed;
+    bottom: 0;
+    
+    width: 100%;
+    padding-top: 20px;
+    background-color: #0055b6;
+    color: #fff;
+   
+}
+
+footer h4 {
+    text-align: center;
+    text-decoration: underline;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 300;
+}
+
+footer p {
+    justify-content: center;
+    margin-left: 20px;
+}
+
+
+
+.newsletter {
+    background-color: #0055b6;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.img-inception {
+    width: 20%;
+    object-fit: cover;
+}
+
+.footer-icon {
+    padding: 0 50px;
+    text-align: center;
+}
+
+footer i {
+    font-size: 30px;
+    color: #fff;
+}
+
+main {
+    margin: 0 auto;
+    width: 640px;
+    height: 480px;
+}
+
+h1, p, ul {
+    text-align: center;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    display: inline-block;
+}
